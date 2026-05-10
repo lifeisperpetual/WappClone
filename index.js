@@ -18,6 +18,11 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Add a landing page for the root URL
+app.get('/', (req, res) => {
+    res.send('<h1>WApp Clone API</h1><p>Status: 🟢 Running</p>');
+});
+
 const TURSO_DB_URL = "sqlite-lifeisperpetual.aws-ap-south-1.turso.io";
 const TURSO_AUTH_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NzgwNTk2MjcsImlkIjoiMDE5ZGZjOWItMDAwMS03ZGFmLTljNGEtZTJiYjI1ZDY2YjRlIiwicmlkIjoiOTJlMjJiYmYtZTcwYS00NjEwLWE0MDUtODZmYWQ0NTYwODk2In0.g98Eu3QDgZRmIPRG72gS0Xpem8IZwRYEU8dMzjdIveOe5R-ejwo0IRNUWvOB-9SZbMGyT1b4RdG0uFWVdq7yCw";
 
@@ -97,9 +102,10 @@ async function initDb() {
 
 initDb();
 
-app.get('/users/search/:phoneNumber', async (req, res) => {
+app.get('/users/search', async (req, res) => {
+    const { phone } = req.query;
     try {
-        const result = await tursoExecute('SELECT id, name, phoneNumber FROM Users WHERE phoneNumber = ?', [req.params.phoneNumber]);
+        const result = await tursoExecute('SELECT id, name, phoneNumber FROM Users WHERE phoneNumber = ?', [phone]);
         if (result.rows.length > 0) {
             res.json({ user: result.rows[0] });
         } else {
